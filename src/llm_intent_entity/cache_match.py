@@ -21,9 +21,18 @@ def responses_needed_from_cache(
 
     Order follows the cache map, which is the order the cache file was read.
     """
-    needed = {evaluation_cache_key(item) for item in evaluation_items}
+    needed = set()
+    # A non-hashable `context` (a list or dict) cannot go in the set; those
+    # keys fall back to an equality scan.
+    unhashable = []
+    for item in evaluation_items:
+        key = evaluation_cache_key(item)
+        try:
+            needed.add(key)
+        except TypeError:
+            unhashable.append(key)
     return [
         item
         for cache_key, item in cached_responses_map.items()
-        if cache_key in needed
+        if cache_key in needed or cache_key in unhashable
     ]

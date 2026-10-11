@@ -33,3 +33,15 @@ def test_missing_context_matches_an_empty_cache_context():
     got = responses_needed_from_cache(cached, items)
 
     assert [row["key"]["index"] for row in got] == [4]
+
+
+def test_non_hashable_context_does_not_break_matching():
+    cached = {("h", "g", ""): {"key": {"index": 4}}}
+    items = [
+        {"hypothesis": "x", "ground_truth": "y", "context": ["turn 1", "turn 2"]},
+        {"hypothesis": "h", "ground_truth": "g"},
+    ]
+
+    got = responses_needed_from_cache(cached, items)
+
+    assert [row["key"]["index"] for row in got] == [4]
